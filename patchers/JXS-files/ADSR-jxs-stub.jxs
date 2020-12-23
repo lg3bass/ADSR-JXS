@@ -1,0 +1,371 @@
+<jittershader name="thebookofshaders">
+	<description>GL3 stub for thebookofshaders.com</description>
+	<param name="jit_position" type="vec3" state="POSITION" />
+	<param name="jit_texcoord" type="vec2" state="TEXCOORD" />
+	<param name="textureMatrix0" type="mat4" state="TEXTURE0_MATRIX" />
+	<param name="modelViewProjectionMatrix" type="mat4" state="MODELVIEW_PROJECTION_MATRIX" />
+	<param name="u_resolution" type="vec2" state="TEXDIM0" />
+	<param name="u_mouse" type="vec2" default="0 0" />
+    <param name="u_time" type="float" default="0" />
+    <param name="ADSRdata" type="int" default="1" />
+    <param name="mode" type="int" default="0" />
+	<language name="glsl" version="1.5">
+		<bind param="jit_position" program="vp" />
+		<bind param="jit_texcoord" program="vp" />
+		<bind param="textureMatrix0" program="vp" />
+		<bind param="modelViewProjectionMatrix" program="vp" />
+		<bind param="u_resolution" program="fp" />
+		<bind param="u_mouse" program="fp" />
+		<bind param="u_time" program="fp" />
+		<bind param="ADSRdata" program="fp" />
+		<bind param="mode" program="fp" />
+		<program name="vp" type="vertex">
+<![CDATA[
+#version 330 core
+
+in vec3 jit_position;
+in vec2 jit_texcoord;
+uniform mat4 textureMatrix0;
+uniform mat4 modelViewProjectionMatrix;
+
+out jit_PerVertex {
+	vec2 texcoord;	
+} jit_out;
+
+void main() {	
+	gl_Position = modelViewProjectionMatrix * vec4(jit_position, 1.);	
+	jit_out.texcoord = vec2(textureMatrix0*vec4(jit_texcoord, 0., 1.));
+
+}
+]]>
+		</program>
+		<program name="fp" type="fragment">
+<![CDATA[
+#version 330 core
+
+#define CNT 4
+#define PI 3.1459265358979
+#define TAU PI * 2.0
+
+#define WHITE vec3(1.0)
+#define BLACK vec3(0.0)
+#define SWEETPEA vec3(1.0, 0.7, 0.75)
+#define BLUE vec3(0.250, 0.215, 0.964)
+#define REDORANGE vec3(0.964, 0.360, 0.215)
+#define YELLOW vec3(0.972, 0.878, 0.125)
+
+
+in jit_PerVertex {
+	vec2 texcoord;
+} jit_in;
+
+//main color out
+//www.khronos.org/opengl/wiki/Layout_Qualifier_(GLSL)
+layout (location = 0) out vec4 outColor;
+
+
+//bookofshaders
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+uniform float u_time;
+
+uniform sampler2DRect ADSRdata;
+uniform int mode;
+
+float expImpulse( float x, float k ){
+	float h = k*x;
+    return h*exp(0.0005-h);
+}
+
+vec3 box(vec2 st,float scale, float time){
+    
+    vec3 color = vec3(0.0);
+    
+    float blop = expImpulse(time, 15.)*0.2;
+    
+    // bottom-left
+	vec2 bl = smoothstep(vec2(0.0,0.0),vec2(0.5,0.5),st);       
+    // top-right
+    
+    
+    
+	vec2 tr = smoothstep(vec2(0.1,0.02),vec2(0.1+blop,0.1+blop),scale-st);   
+    
+    color = vec3(bl.x * bl.y * tr.x * tr.y);
+        
+    return color;
+}
+
+
+float linearstep(float begin, float end, float t) {
+    return clamp((t - begin) / (end - begin), 0.0, 1.0);
+}
+
+
+float map(float n, float i1, float i2, float o1, float o2){
+	return o1 + (n-i1)*(o2-i1)/(i2-i1);
+	
+}
+
+vec2 rotate(vec2 st, float a){
+	st = mat2( cos(a) , -sin(a), sin(a), cos(a) ) * (st - 0.5);
+	return st + 0.5;
+}
+
+
+
+
+
+void main() {
+
+
+
+	int animated = 0;
+	
+	float t;
+	
+	if(animated == 0){		
+		t = fract(u_time / 04.0);
+	} else {
+		t = 0.0;
+	}
+
+	vec2 st = jit_in.texcoord.st/u_resolution.xy;
+
+	//50% performance increase if you DON'T USE a struct !!!!!	
+	float 	time_1[CNT],	time_2[CNT],	time_3[CNT],	time_4[CNT];
+	vec4	box_1[CNT],		box_2[CNT],		box_3[CNT],		box_4[CNT];
+	vec4	color_1,		color_2,		color_3,		color_4			= vec4(0.0);
+	
+	
+		//MAIN FOR LOOP
+	for(int i=0;i < CNT; i++){
+		
+		vec4 item = vec4(0.0);
+		
+		if(mode == 1){
+			item = texture(ADSRdata, vec2(float(i)+0.5,float(0)+0.5));
+		
+			time_1[i] = item.a;		//plane 0
+			time_2[i] = item.x;
+			time_3[i] = item.y;
+			time_4[i] = item.z;
+		
+		} else if (mode == 0) {
+			time_1[i] = t;
+			time_2[i] = t;
+			time_3[i] = t;
+			time_4[i] = t;
+		}
+		
+
+	
+	//LAYER 1
+	//=========================================================		
+	
+	/*			
+	ang_1[i] = radians((360./float(elements1))*float(i));
+	orient_1[i] = ang_1[i] - PI/1.0;
+	LRot_1[i] = rotate(gSt_01+0.5, orient_1[i])-0.5;
+	*/
+	
+	vec2 m1 = vec2(i*0.25-0.15,-0.2);
+	
+	//ATTACK
+	if(time_1[i] >= 0.0 && time_1[i] < 0.25){
+	
+		float modT = linearstep(0.0,0.25,time_1[i]);		
+		float modT2 = pow(modT,2.304);
+		
+		box_1[i] = vec4(box(st-m1,0.5*modT2,0.0),1.0);
+		
+
+
+	}
+
+	//DECAY
+	if(time_1[i] >= 0.25 && time_1[i] < 0.5){
+
+		float modT = linearstep(0.25,0.50,time_1[i]);		
+		float blip = expImpulse(modT, 20.0 )*0.2;
+		
+		box_1[i] = vec4(box(st-m1,0.5+blip,modT),1.0);
+				
+	}
+
+	//SUSTAIN
+	if(time_1[i] >= 0.5 && time_1[i] < 0.75){
+	
+		float modT = linearstep(0.5,0.75,time_1[i]);		
+		box_1[i] = vec4(box(st-m1,0.5,0.0),1.0);
+				
+	}
+
+	//RELEASE
+	if(time_1[i] >= 0.75 && time_1[i] <= 1.0){
+
+		float modT = linearstep(0.75,1.0,time_1[i]);
+		float modT2 = 1.0-pow(modT,2.5);
+		
+		box_1[i] = vec4(box(st-m1,0.5*modT2,0.0),1.0);
+	
+	}					
+	color_1 += box_1[i] * vec4(1.0,0.0,0.0,1.0);				
+
+
+	//LAYER 2
+	//=========================================================		
+	
+	/*			
+	ang_1[i] = radians((360./float(elements1))*float(i));
+	orient_1[i] = ang_1[i] - PI/1.0;
+	LRot_1[i] = rotate(gSt_01+0.5, orient_1[i])-0.5;
+	*/
+	
+	vec2 m2 = vec2(i*0.25-0.15,0.05);
+	
+	//ATTACK
+	if(time_2[i] >= 0.0 && time_2[i] < 0.25){
+	
+		float modT = linearstep(0.0,0.25,time_2[i]);
+		float modT2 = pow(modT,2.304);		
+		box_2[i] = vec4(box(st-m2,0.5*modT2,0.),1.0);
+
+	}
+
+	//DECAY
+	if(time_2[i] >= 0.25 && time_2[i] < 0.5){
+
+		float modT = linearstep(0.25,0.50,time_2[i]);		
+		float blip = expImpulse(modT, 20.0 )*0.2;
+		
+		box_2[i] = vec4(box(st-m2,0.5+blip,modT),1.0);
+				
+	}
+
+	//SUSTAIN
+	if(time_2[i] >= 0.5 && time_2[i] < 0.75){
+	
+		float modT = linearstep(0.5,0.75,time_2[i]);		
+		box_2[i] = vec4(box(st-m2,0.5,0.),1.0);
+
+	}
+
+	//RELEASE
+	if(time_2[i] >= 0.75 && time_2[i] <= 1.0){
+
+		float modT = linearstep(0.75,1.0,time_2[i]);
+		float modT2 = 1.0-pow(modT,2.5);
+		box_2[i] = vec4(box(st-m2,0.5*modT2,0.),1.0);
+	
+	}					
+	color_1 += box_2[i] * vec4(0.0,1.0,0.0,1.0);				
+
+
+	//LAYER 3
+	//=========================================================		
+	
+	/*			
+	ang_1[i] = radians((360./float(elements1))*float(i));
+	orient_1[i] = ang_1[i] - PI/1.0;
+	LRot_1[i] = rotate(gSt_01+0.5, orient_1[i])-0.5;
+	*/
+	
+	vec2 m3 = vec2(i*0.25-0.15,0.3);
+	
+	//ATTACK
+	if(time_3[i] >= 0.0 && time_3[i] < 0.25){
+	
+		float modT = linearstep(0.0,0.25,time_3[i]);
+		float modT2 = pow(modT,2.304);		
+		box_3[i] = vec4(box(st-m3,0.5*modT2,0.),1.0);
+
+	}
+
+	//DECAY
+	if(time_3[i] >= 0.25 && time_3[i] < 0.5){
+
+		float modT = linearstep(0.25,0.50,time_3[i]);		
+		float blip = expImpulse(modT, 20.0 )*0.2;
+		
+		box_3[i] = vec4(box(st-m3,0.5+blip,modT),1.0);
+				
+	}
+
+	//SUSTAIN
+	if(time_3[i] >= 0.5 && time_3[i] < 0.75){
+	
+		float modT = linearstep(0.5,0.75,time_3[i]);		
+		box_3[i] = vec4(box(st-m3,0.5,0.),1.0);
+
+	}
+
+	//RELEASE
+	if(time_3[i] >= 0.75 && time_3[i] <= 1.0){
+
+		float modT = linearstep(0.75,1.0,time_3[i]);
+		float modT2 = 1.0-pow(modT,2.5);
+		box_3[i] = vec4(box(st-m3,0.5*modT2,0.),1.0);
+	
+	}					
+	color_1 += box_3[i] * vec4(0.0,0.0,1.0,1.0);
+	
+	
+	//LAYER 4
+	//=========================================================		
+	
+	/*			
+	ang_1[i] = radians((360./float(elements1))*float(i));
+	orient_1[i] = ang_1[i] - PI/1.0;
+	LRot_1[i] = rotate(gSt_01+0.5, orient_1[i])-0.5;
+	*/
+	
+	vec2 m4 = vec2(i*0.25-0.15,0.55);
+	
+	//ATTACK
+	if(time_4[i] >= 0.0 && time_4[i] < 0.25){
+	
+		float modT = linearstep(0.0,0.25,time_4[i]);
+		float modT2 = pow(modT,2.304);		
+		box_4[i] = vec4(box(st-m4,0.5*modT2,0.),1.0);
+
+	}
+
+	//DECAY
+	if(time_4[i] >= 0.25 && time_4[i] < 0.5){
+
+		float modT = linearstep(0.25,0.50,time_4[i]);		
+		float blip = expImpulse(modT, 20.0 )*0.2;
+		
+		box_4[i] = vec4(box(st-m4,0.5+blip,modT),1.0);
+				
+	}
+
+	//SUSTAIN
+	if(time_4[i] >= 0.5 && time_4[i] < 0.75){
+	
+		float modT = linearstep(0.5,0.75,time_4[i]);		
+		box_4[i] = vec4(box(st-m4,0.5,0.),1.0);
+
+	}
+
+	//RELEASE
+	if(time_4[i] >= 0.75 && time_4[i] <= 1.0){
+
+		float modT = linearstep(0.75,1.0,time_4[i]);
+		float modT2 = 1.0-pow(modT,2.5);
+		box_4[i] = vec4(box(st-m4,0.5*modT2,0.),1.0);
+	
+	}					
+	color_1 += box_4[i] * vec4(1.0,1.0,0.0,1.0);	
+
+	} // END FOR
+	
+	
+	outColor = color_1;
+
+}	
+]]>
+		</program>
+	</language>
+</jittershader>

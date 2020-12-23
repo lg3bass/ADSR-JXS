@@ -1,0 +1,97 @@
+<jittershader name="thebookofshaders">
+	<description>GL3 stub for thebookofshaders.com</description>
+	<param name="jit_position" type="vec3" state="POSITION" />
+	<param name="jit_texcoord" type="vec2" state="TEXCOORD" />
+	<param name="textureMatrix0" type="mat4" state="TEXTURE0_MATRIX" />
+	<param name="modelViewProjectionMatrix" type="mat4" state="MODELVIEW_PROJECTION_MATRIX" />
+	<param name="u_resolution" type="vec2" state="TEXDIM0" />
+	<param name="u_mouse" type="vec2" default="0 0" />
+    <param name="u_time" type="float" default="0" />
+	<language name="glsl" version="1.5">
+		<bind param="jit_position" program="vp" />
+		<bind param="jit_texcoord" program="vp" />
+		<bind param="textureMatrix0" program="vp" />
+		<bind param="modelViewProjectionMatrix" program="vp" />
+		<bind param="u_resolution" program="fp" />
+		<bind param="u_mouse" program="fp" />
+		<bind param="u_time" program="fp" />
+		<program name="vp" type="vertex">
+<![CDATA[
+#version 330 core
+
+in vec3 jit_position;
+in vec2 jit_texcoord;
+uniform mat4 textureMatrix0;
+uniform mat4 modelViewProjectionMatrix;
+
+out jit_PerVertex {
+	vec2 texcoord;	
+} jit_out;
+
+void main() {	
+	gl_Position = modelViewProjectionMatrix * vec4(jit_position, 1.);	
+	jit_out.texcoord = vec2(textureMatrix0*vec4(jit_texcoord, 0., 1.));
+
+}
+]]>
+		</program>
+		<program name="fp" type="fragment">
+<![CDATA[
+#version 330 core
+
+#define WHITE vec3(1.0)
+#define BLACK vec3(0.0)
+#define SWEETPEA vec3(1.0, 0.7, 0.75)
+#define BLUE vec3(0.250, 0.215, 0.964)
+#define REDORANGE vec3(0.964, 0.360, 0.215)
+#define YELLOW vec3(0.972, 0.878, 0.125)
+
+
+in jit_PerVertex {
+	vec2 texcoord;
+} jit_in;
+
+//main color out
+//www.khronos.org/opengl/wiki/Layout_Qualifier_(GLSL)
+layout (location = 0) out vec4 outColor;
+
+
+//bookofshaders
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+uniform float u_time;
+
+
+float circle(in vec2 _st, in float _radius){
+    vec2 dist = _st-vec2(0.5);
+	return 1.-smoothstep(_radius-(_radius*0.01),
+                         _radius+(_radius*0.01),
+                         dot(dist,dist)*4.0);
+}
+
+void main() {
+	
+	vec3 color = vec3(0.0);
+		
+	vec2 st = jit_in.texcoord.st/u_resolution.xy;	
+	
+	vec2 mousePosition = 1.0-(u_mouse/u_resolution.xy)-0.5;
+		
+	float circleSize = sin(u_time)/2.0 + 0.5;
+	
+	vec3 circle1 = vec3(circle(st+mousePosition,0.4*circleSize));
+	
+	vec2 stMouse = u_mouse/u_resolution.xy;
+	
+	vec3 red = vec3(1.0,1.0,1.0);
+	
+	vec3 circle2 = red * vec3(circle(st+mousePosition,0.1*circleSize));
+	
+	color = circle1 - circle2;
+	
+	outColor = vec4(color,1.0);
+}	
+]]>
+		</program>
+	</language>
+</jittershader>

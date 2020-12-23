@@ -1,0 +1,303 @@
+<jittershader name="thebookofshaders">
+	<description>GL3 stub for thebookofshaders.com</description>
+	<param name="jit_position" type="vec3" state="POSITION" />
+	<param name="jit_texcoord" type="vec2" state="TEXCOORD" />
+	<param name="textureMatrix0" type="mat4" state="TEXTURE0_MATRIX" />
+	<param name="modelViewProjectionMatrix" type="mat4" state="MODELVIEW_PROJECTION_MATRIX" />
+	<param name="u_resolution" type="vec2" state="TEXDIM0" />
+	<param name="u_mouse" type="vec2" default="0 0" />
+    <param name="u_time" type="float" default="0" />
+    <param name="ADSRdata" type="int" default="1" />
+    <param name="mode" type="int" default="0" />
+	<language name="glsl" version="1.5">
+		<bind param="jit_position" program="vp" />
+		<bind param="jit_texcoord" program="vp" />
+		<bind param="textureMatrix0" program="vp" />
+		<bind param="modelViewProjectionMatrix" program="vp" />
+		<bind param="u_resolution" program="fp" />
+		<bind param="u_mouse" program="fp" />
+		<bind param="u_time" program="fp" />
+		<bind param="ADSRdata" program="fp" />
+		<bind param="mode" program="fp" />
+		<program name="vp" type="vertex">
+<![CDATA[
+#version 330 core
+
+in vec3 jit_position;
+in vec2 jit_texcoord;
+uniform mat4 textureMatrix0;
+uniform mat4 modelViewProjectionMatrix;
+
+out jit_PerVertex {
+	vec2 texcoord;	
+} jit_out;
+
+void main() {	
+	gl_Position = modelViewProjectionMatrix * vec4(jit_position, 1.);	
+	jit_out.texcoord = vec2(textureMatrix0*vec4(jit_texcoord, 0., 1.));
+
+}
+]]>
+		</program>
+		<program name="fp" type="fragment">
+<![CDATA[
+#version 330 core
+
+#define CNT 16
+#define PI 3.1459265358979
+#define TAU PI * 2.0
+
+#define WHITE vec3(1.0)
+#define BLACK vec3(0.0)
+#define SWEETPEA vec3(1.0, 0.7, 0.75)
+#define BLUE vec3(0.250, 0.215, 0.964)
+#define REDORANGE vec3(0.964, 0.360, 0.215)
+#define YELLOW vec3(0.972, 0.878, 0.125)
+
+
+in jit_PerVertex {
+	vec2 texcoord;
+} jit_in;
+
+//main color out
+//www.khronos.org/opengl/wiki/Layout_Qualifier_(GLSL)
+layout (location = 0) out vec4 outColor;
+
+
+//bookofshaders
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+uniform float u_time;
+
+uniform sampler2DRect ADSRdata;
+uniform int mode;
+
+//source: https://www.iquilezles.org/www/articles/functions/functions.htm
+float expImpulse( float x, float k ){
+	float h = k*x;
+    return h*exp(0.0005-h);
+}
+
+//source: https://www.iquilezles.org/www/articles/functions/functions.htm
+float pcurve( float x, float a, float b , float amp)
+{
+    float k = pow(a+b,a+b) / (pow(a,a)*pow(b,b));
+    
+    float curve = k * pow( x, a ) * pow( 1.0-x, b );
+    return curve * amp;
+}
+
+
+float box2(in vec2 _st, in vec2 _size){
+    _size = vec2(0.5) - _size*0.5;
+    vec2 uv = smoothstep(_size,
+                        _size+vec2(0.001),
+                        _st);
+    uv *= smoothstep(_size,
+                    _size+vec2(0.001),
+                    vec2(1.0)-_st);
+    return uv.x*uv.y;
+}
+
+
+
+float linearstep(float begin, float end, float t) {
+    return clamp((t - begin) / (end - begin), 0.0, 1.0);
+}
+
+
+float map(float n, float i1, float i2, float o1, float o2){
+	return o1 + (n-i1)*(o2-i1)/(i2-i1);
+	
+}
+
+void rotateShape(inout vec2 _st, float a){
+	_st = mat2( cos(a) , -sin(a), sin(a), cos(a) ) * (_st - 0.5);
+	_st += 0.5;
+}
+
+void translateShape(inout vec2 _st, vec2 pos){
+	_st += pos;
+}
+
+float myBox(in vec2 _st, float size){
+
+	return box2(_st,vec2(size));
+
+}
+
+vec3 track1(inout vec2 _st, float time, float i){
+
+	//SETUP TRANS and ROTATION
+	float shape  = 0;
+	rotateShape(_st,radians(40.0*i));
+	translateShape(_st,vec2(0.0,0.020*i));
+	float sizeMod = (i+1) * 1.0/float(CNT);
+	
+	//ATTACK
+	if(time >= 0.0 && time < 0.25){
+	
+		float modT = linearstep(0.0,0.25,time);		
+		float size = pow(modT,2.304) * (0.2*sizeMod);
+		shape = myBox(_st,size);
+		shape -= myBox(_st,size*0.8);
+	}
+
+	//DECAY
+	if(time >= 0.25 && time < 0.5){
+
+		float modT = linearstep(0.25,0.50,time);
+		float size = 0.2*sizeMod;	
+		
+		vec2 pulse = vec2(0.0,pcurve( modT, 0.8, 9.0 , 0.1));
+		float pulseShade = pow(modT,10.0);
+		shape = myBox(_st+pulse,size);
+		shape -= myBox(_st+pulse,(size*0.8)*pulseShade);
+				
+	}
+
+	//SUSTAIN
+	if(time >= 0.5 && time < 0.75){
+	
+		float modT = linearstep(0.5,0.75,time);		
+		float size = 0.2*sizeMod;
+		shape = myBox(_st,size);
+		shape -= myBox(_st,size*0.8);
+				
+	}
+
+	//RELEASE
+	if(time >= 0.75 && time <= 1.0){
+
+		float modT = linearstep(0.75,1.0,time);
+		float size = (1.0-pow(modT,2.304)) * (0.2*sizeMod);
+		shape = myBox(_st,size);
+		shape -= myBox(_st,size*0.8);
+	
+	}	
+
+	//this only returns red as a test.
+	return vec3(shape,0.0,0.0);
+
+}
+
+
+
+void main() {
+
+	int animated = 0;
+	
+	float t;
+	
+	if(animated == 0){		
+		t = fract(u_time / 04.0);
+	} else {
+		t = 0.0;
+	}
+
+	vec2 st = jit_in.texcoord.st/u_resolution.xy;
+
+	//50% performance increase if you DON'T USE a struct !!!!!	
+	vec2	st_1[CNT],		st_2[CNT],		st_3[CNT],		st_4[CNT];
+	float 	time_1[CNT],	time_2[CNT],	time_3[CNT],	time_4[CNT];
+	//float	shape_1[CNT];
+	//vec3	shape_c1[CNT];
+	//float	ang_1[CNT];
+	//vec4	box_1[CNT],		box_2[CNT],		box_3[CNT],		box_4[CNT];
+	vec3	color_1,		color_2,		color_3,		color_4			= vec3(0.0);
+	
+	
+		//MAIN FOR LOOP
+	for(int i=0;i < CNT; i++){
+		
+		vec4 item = vec4(0.0);
+		
+		if(mode == 1){
+			item = texture(ADSRdata, vec2(float(i)+0.5,float(0)+0.5));
+		
+			time_1[i] = item.a;		//plane 0
+			time_2[i] = item.x;
+			time_3[i] = item.y;
+			time_4[i] = item.z;
+		
+		} else if (mode == 0) {
+			time_1[i] = t;
+			time_2[i] = t;
+			time_3[i] = t;
+			time_4[i] = t;
+		}
+		
+
+		st_1[i] = st_2[i] = st_3[i] = st_4[i] = st;
+	
+		//You can edit variables in place with out a return.
+		//rotateShape(st_1[i],radians(30.0*float(i)));
+		//translateShape(st_1[i],vec2(0.0,0.03*float(i)));
+		
+		//boil it all down to a single function per state.
+		//track1(inout vec2 _st, float time, float i)
+		color_1 += track1(st_1[i], time_1[i], float(i));
+		
+		
+		
+		
+		/*
+		//st_1 - is modified in place
+		vec3 additionalBox = vec3(myBox(st_1[3],time_1[i],0.03),0.0,0.0);
+		color_1 -= vec4(additionalBox,1.0);
+		*/
+		
+		
+
+
+/*
+
+	//LAYER 1
+	//=========================================================		
+	
+	
+	//ATTACK
+	if(time_1[i] >= 0.0 && time_1[i] < 0.25){
+	
+		float modT = linearstep(0.0,0.25,time_1[i]);		
+
+		
+	}
+
+	//DECAY
+	if(time_1[i] >= 0.25 && time_1[i] < 0.5){
+
+		float modT = linearstep(0.25,0.50,time_1[i]);		
+
+				
+	}
+
+	//SUSTAIN
+	if(time_1[i] >= 0.5 && time_1[i] < 0.75){
+	
+		float modT = linearstep(0.5,0.75,time_1[i]);		
+
+				
+	}
+
+	//RELEASE
+	if(time_1[i] >= 0.75 && time_1[i] <= 1.0){
+
+		float modT = linearstep(0.75,1.0,time_1[i]);
+
+	
+	}					
+	//color_1 += box_1[i] * vec4(1.0,0.0,0.0,1.0);				
+
+*/
+
+
+	} // END MAIN FOR
+	
+	outColor = vec4(color_1,1.0);
+
+}	
+]]>
+		</program>
+	</language>
+</jittershader>
