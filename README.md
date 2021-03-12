@@ -9,14 +9,12 @@ This is a M4L device that renders and records a native Ableton .jxs shader file.
 	20201128 v0.02,0.03 - option+l key refresh shader
 	20201203 v0.04 - gParams 
 	20201212 v0.062 - audio reload toggle, reloadBang
+	20201231 v0.063 - bug fixes
 	
-## TODO
+	
+## Issue Log
 
-1. 	Shader refreshes everytime you edit.
-	- In the shader set mode default value to 1.  Modify the asdr-jsx so that you have to turn on automatic.
-2.	GPU Profile - GPU meter shows HD Graphics 530 being utilized.
-	- when you change the dimensions the adsrJXSworld it stops using HD Graphics
-	
+[Issue Log](https://docs.google.com/spreadsheets/d/1zsDH-BvhwENo8CKwWO2RhLVwaYivwh7z1DA6AXC1FMQ/edit#gid=0)
 
 
 
