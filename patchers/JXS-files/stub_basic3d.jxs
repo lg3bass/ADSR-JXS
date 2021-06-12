@@ -1,0 +1,610 @@
+<jittershader name="thebookofshaders">
+	<description>GL3 stub 20210413</description>
+	<param name="jit_position" type="vec3" state="POSITION" />
+	<param name="jit_texcoord" type="vec2" state="TEXCOORD" />
+	<param name="textureMatrix0" type="mat4" state="TEXTURE0_MATRIX" />
+	<param name="modelViewProjectionMatrix" type="mat4" state="MODELVIEW_PROJECTION_MATRIX" />
+	<param name="u_resolution" type="vec2" state="TEXDIM0" />
+	<param name="u_mouse" type="vec2" default="0 0" />
+    <param name="u_time" type="float" default="0" />
+    <param name="ADSRdata" type="int" default="1" />
+    <param name="mode" type="int" default="0" />
+    <param name="elements1" type="int" default="4" />
+    <param name="elements2" type="int" default="4" />
+    <param name="elements3" type="int" default="4" />
+    <param name="elements4" type="int" default="4" />
+    <param name="elements5" type="int" default="4" />
+	    
+	<param name="param0_1" type="float" default="0.0" />
+	<param name="param0_2" type="float" default="0.0" />
+	<param name="param0_3" type="float" default="0.0" />
+	<param name="param0_4" type="float" default="0.0" />	    
+	    	    
+	<param name="layerAngle1" type="float" default="0.0" />
+	<param name="layer1enabled" type="bool" default="1" />
+	<param name="c1" type="vec4" default="1. 0. 0. 1." />
+	<param name="param1_1" type="float" default="0.15" />
+	<param name="param1_2" type="float" default="0.15" />
+	<param name="param1_3" type="float" default="0.0" />
+	<param name="param1_4" type="float" default="0.0" />
+	<param name="param1_5" type="float" default="0.0" />
+	<param name="param1_6" type="float" default="0.0" />
+
+	<param name="layerAngle2" type="float" default="0.0" />
+	<param name="layer2enabled" type="bool" default="1" />
+	<param name="c2" type="vec4" default="0. 1. 1. 1." />
+	<param name="param2_1" type="float" default="0.15" />
+	<param name="param2_2" type="float" default="0.23" />
+	<param name="param2_3" type="float" default="0.0" />
+	<param name="param2_4" type="float" default="0.0" />
+	<param name="param2_5" type="float" default="0.0" />
+	<param name="param2_6" type="float" default="0.0" />
+	
+	<param name="layerAngle3" type="float" default="0.0" />
+	<param name="layer3enabled" type="bool" default="1" />
+	<param name="c3" type="vec4" default="0. 1. 0. 1." />
+	<param name="param3_1" type="float" default="0.15" />
+	<param name="param3_2" type="float" default="0.3" />
+	<param name="param3_3" type="float" default="0.0" />
+	<param name="param3_4" type="float" default="0.0" />
+	<param name="param3_5" type="float" default="0.0" />
+	<param name="param3_6" type="float" default="0.0" />
+	
+	<param name="layerAngle4" type="float" default="0.0" />
+	<param name="layer4enabled" type="bool" default="1" />
+	<param name="c4" type="vec4" default="0. 0. 1. 1." />
+	<param name="param4_1" type="float" default="0.15" />
+	<param name="param4_2" type="float" default="0.4" />
+	<param name="param4_3" type="float" default="0.0" />
+	<param name="param4_4" type="float" default="0.0" />
+	<param name="param4_5" type="float" default="0.0" />
+	<param name="param4_6" type="float" default="0.0" />
+
+	<param name="layerAngle5" type="float" default="0.0" />
+	<param name="layer5enabled" type="bool" default="1" />
+	<param name="c5" type="vec4" default="1. 1. 0. 1." />
+	<param name="param5_1" type="float" default="0.1" />
+	<param name="param5_2" type="float" default="0.35" />
+	<param name="param5_3" type="float" default="0.0" />
+	<param name="param5_4" type="float" default="0.0" />
+	<param name="param5_5" type="float" default="0.0" />
+	<param name="param5_6" type="float" default="0.0" />	
+	<param name="hero_1" type="float" default="0.0" />
+	<param name="hero_2" type="float" default="0.25" />
+	<param name="hero_3" type="float" default="0.50" />
+	<param name="hero_4" type="float" default="0.75" />
+	<param name="hero_5" type="float" default="1.0" />
+	<param name="hero_6" type="float" default="0.0" />	
+	<param name="hero_7" type="float" default="0.0" />
+	<param name="hero_8" type="float" default="0.0" />	
+	
+	<language name="glsl" version="1.5">
+		<bind param="jit_position" program="vp" />
+		<bind param="jit_texcoord" program="vp" />
+		<bind param="textureMatrix0" program="vp" />
+		<bind param="modelViewProjectionMatrix" program="vp" />
+		<bind param="u_resolution" program="fp" />
+		<bind param="u_mouse" program="fp" />
+		<bind param="u_time" program="fp" />
+		<bind param="ADSRdata" program="fp" />
+		<bind param="mode" program="fp" />
+		<bind param="elements1" program="fp" />
+		<bind param="elements2" program="fp" />
+		<bind param="elements3" program="fp" />
+		<bind param="elements4" program="fp" />
+		<bind param="elements5" program="fp" />
+
+		<bind param="param0_1" program="vp" />
+		<bind param="param0_2" program="vp" />
+		<bind param="param0_3" program="vp" />
+		<bind param="param0_4" program="vp" />
+			
+		<bind param="layerAngle1" program="fp" />
+		<bind param="layer1enabled" program="fp" />
+		<bind param="c1" program="fp" />
+		<bind param="param1_1" program="vp" />
+		<bind param="param1_2" program="vp" />
+		<bind param="param1_3" program="vp" />
+		<bind param="param1_4" program="vp" />
+		<bind param="param1_5" program="vp" />
+		<bind param="param1_6" program="vp" />		
+		
+		<bind param="layerAngle2" program="fp" />
+		<bind param="layer2enabled" program="fp" />
+		<bind param="c2" program="fp" />
+		<bind param="param2_1" program="vp" />
+		<bind param="param2_2" program="vp" />
+		<bind param="param2_3" program="vp" />
+		<bind param="param2_4" program="vp" />
+		<bind param="param2_5" program="vp" />
+		<bind param="param2_6" program="vp" />	
+		
+		<bind param="layerAngle3" program="fp" />
+		<bind param="layer3enabled" program="fp" />
+		<bind param="c3" program="fp" />
+		<bind param="param3_1" program="vp" />
+		<bind param="param3_2" program="vp" />
+		<bind param="param3_3" program="vp" />
+		<bind param="param3_4" program="vp" />
+		<bind param="param3_5" program="vp" />
+		<bind param="param3_6" program="vp" />
+
+		<bind param="layerAngle4" program="fp" />
+		<bind param="layer4enabled" program="fp" />
+		<bind param="c4" program="fp" />
+		<bind param="param4_1" program="vp" />
+		<bind param="param4_2" program="vp" />
+		<bind param="param4_3" program="vp" />
+		<bind param="param4_4" program="vp" />
+		<bind param="param4_5" program="vp" />
+		<bind param="param4_6" program="vp" />
+
+		<bind param="layerAngle5" program="fp" />
+		<bind param="layer5enabled" program="fp" />
+		<bind param="c5" program="fp" />
+		<bind param="param5_1" program="vp" />
+		<bind param="param5_2" program="vp" />
+		<bind param="param5_3" program="vp" />
+		<bind param="param5_4" program="vp" />
+		<bind param="param5_5" program="vp" />
+		<bind param="param5_6" program="vp" />
+		<bind param="hero_1" program="vp" />
+		<bind param="hero_2" program="vp" />
+		<bind param="hero_3" program="vp" />
+		<bind param="hero_4" program="vp" />
+		<bind param="hero_5" program="vp" />
+		<bind param="hero_6" program="vp" />
+		<bind param="hero_7" program="vp" />
+		<bind param="hero_8" program="vp" />
+
+		
+		<program name="vp" type="vertex">
+<![CDATA[
+#version 330 core
+
+#define CNT 16
+#define PI 3.1459265358979
+
+in vec3 jit_position;
+in vec2 jit_texcoord;
+uniform mat4 textureMatrix0;
+uniform mat4 modelViewProjectionMatrix;
+
+out jit_PerVertex {
+	vec2 texcoord;	
+} jit_out;
+
+void main() {	
+	gl_Position = modelViewProjectionMatrix * vec4(jit_position, 1.);	
+	jit_out.texcoord = vec2(textureMatrix0*vec4(jit_texcoord, 0., 1.));
+
+}
+]]>
+		</program>
+		<program name="fp" type="fragment">
+<![CDATA[
+#version 330 core
+
+#define CNT 16
+#define PI 3.1459265358979
+#define TWO_PI 6.28318530718
+#define TAU PI * 2.0
+
+in jit_PerVertex {
+	vec2 texcoord;
+} jit_in;
+
+//main color out
+//www.khronos.org/opengl/wiki/Layout_Qualifier_(GLSL)
+layout (location = 0) out vec4 outColor;
+
+
+//bookofshaders
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+uniform float u_time;
+
+uniform sampler2DRect ADSRdata;
+uniform int mode;
+
+uniform int elements1;
+uniform int elements2;
+uniform int elements3;
+uniform int elements4;
+uniform int elements5;
+
+uniform float param0_1;				//0.0
+uniform float param0_2;				//0.0
+uniform float param0_3;				//0.0
+uniform float param0_4;				//0.0
+
+//track1
+uniform float layerAngle1;
+uniform bool layer1enabled;
+uniform vec4 c1;
+uniform float param1_1;				//0.0
+uniform float param1_2;				//0.0
+uniform float param1_3;				//0.0
+uniform float param1_4;				//0.0	
+uniform float param1_5;				//0.0
+uniform float param1_6;				//0.0	
+
+//track2
+uniform float layerAngle2;
+uniform bool layer2enabled;
+uniform vec4 c2;
+uniform float param2_1;				//0.0
+uniform float param2_2;				//0.0
+uniform float param2_3;				//0.0
+uniform float param2_4;				//0.0	
+uniform float param2_5;				//0.0
+uniform float param2_6;				//0.0	
+
+//track3
+uniform float layerAngle3;
+uniform bool layer3enabled;
+uniform vec4 c3;
+uniform float param3_1;				//0.0
+uniform float param3_2;				//0.0
+uniform float param3_3;				//0.0
+uniform float param3_4;				//0.0	
+uniform float param3_5;				//0.0
+uniform float param3_6;				//0.0	
+
+//track4
+uniform float layerAngle4;
+uniform bool layer4enabled;
+uniform vec4 c4;
+uniform float param4_1;				//0.0
+uniform float param4_2;				//0.0
+uniform float param4_3;				//0.0
+uniform float param4_4;				//0.0	
+uniform float param4_5;				//0.0
+uniform float param4_6;				//0.0	
+
+//track5
+uniform float layerAngle5;
+uniform bool layer5enabled;
+uniform vec4 c5;
+uniform float param5_1;				//0.0
+uniform float param5_2;				//0.0
+uniform float param5_3;				//0.0
+uniform float param5_4;				//0.0	
+uniform float param5_5;				//0.0
+uniform float param5_6;				//0.0	
+//hero midi in
+uniform float hero_1;				//0.0
+uniform float hero_2;				//0.0
+uniform float hero_3;				//0.0
+uniform float hero_4;				//0.0	
+uniform float hero_5;				//0.0
+uniform float hero_6;				//0.0	
+uniform float hero_7;				//0.0
+uniform float hero_8;				//0.0	
+
+
+float 	time_1[CNT],	time_2[CNT],	time_3[CNT],	time_4[CNT],	time_5[CNT];
+
+float dot2( in vec3 v ) { return dot(v,v); }
+
+float linearstep(float begin, float end, float t) {
+    return clamp((t - begin) / (end - begin), 0.0, 1.0);
+}
+
+float sdBox( vec3 p, vec3 b )
+{
+  vec3 q = abs(p) - b;
+  return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+}
+
+float sdRoundBox( vec3 p, vec3 b, float r )
+{
+  vec3 q = abs(p) - b;
+  return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0) - r;
+}
+
+
+float track(int instance, in vec3 pos, in float time){
+		
+	float shape;
+	float modT;
+	
+	vec3 pMod = vec3(0.0,0.0,0.0);
+	vec3 sMod = vec3(0.35, 0.05, 0.5);
+	
+	if(time > 0 && time < 1.0){
+		
+		if(time < 0.25){
+			//ATTACK
+			modT = linearstep(0.0,0.25,time);
+			pMod = vec3(0.0,0.1,modT*4.0-2.0);
+			sMod.x *= modT;
+			//sMod.z *= modT;
+		} else {
+			if(time < 0.5){
+				//DECAY
+				modT = linearstep(0.25,0.5,time);
+				pMod = vec3(0.0,0.1,2.0);
+				sMod.x *= (1.0-modT)/2.0+1.0;
+				sMod.y *= (1.0-modT)*2.0+1.0;
+			} else {
+				if(time < 0.75){
+					//SUSTAIN
+					modT = linearstep(0.5,0.75,time);
+					pMod = vec3(0.0,0.1,2.0);
+				} else {
+					//RELEASE(less than 1.0)
+					modT = linearstep(0.75,1.0,time);
+					pMod = vec3(0.0,0.1,modT*2.0+2.0);
+					sMod.y *= 1.0-modT;
+					
+				}
+			} 
+		
+		}
+		
+		shape = sdRoundBox(pos+pMod,sMod,0.05);
+	
+	} else {
+		shape = 1.0;	
+	}
+		
+
+		
+	
+
+
+
+	return shape;
+}
+
+
+//=====================================================
+//This is where you assemble the shapes
+//check out https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+/*
+float map( in vec3 p )
+{
+  //box1
+  float b1 = sdBox(p+vec3(0.0,0.6,0.0),vec3(0.4, 0.1, 0.5));
+  
+  //box2
+  float b2 = sdBox(p+vec3(0.0,0.3,0.0),vec3(0.4, 0.1, 0.5));
+  b2 = sdRoundBox(p+vec3(0.0,0.2,0.0),vec3(0.35, 0.08, 0.5),0.05);
+  
+  float b3 = sdBox(p+vec3(0.0,-0.2,0.0),vec3(0.4, 0.1, 0.5));
+  
+  float b4 = sdRoundBox(p+vec3(0.0,-0.6,0.0),vec3(0.35, 0.08, 0.5),0.05);
+
+  // ground plane
+	float groundPlane = p.y + 1.0;
+
+   return min( min(b1,min(b2,min(b3,b4))), groundPlane );	
+}
+*/
+
+float map( in vec3 p) {
+	
+	float box = 1.0;
+	
+	float track1 = 1.0;
+	float track2 = 1.0;
+	float track3 = 1.0;
+	float track4 = 1.0;
+	
+	for(int j=0;j<CNT;j++){
+		
+		float spacing = 0.3;
+		
+		
+		if(j<elements1){
+			float xPos = spacing*j-((spacing*float(elements1))/2.0-(spacing/2.0));
+			track1 = min(track1,track(j,p+vec3(xPos,-0.3,0.0),time_1[j]));
+		}
+		
+		if(j<elements2){
+			float xPos = spacing*j-((spacing*float(elements2))/2.0-(spacing/2.0));
+			track2 = min(track2,track(j,p+vec3(xPos,0.0,0.0),time_2[j]));
+		}
+		
+		if(j<elements3){
+			float xPos = spacing*j-((spacing*float(elements3))/2.0-(spacing/2.0));
+			track3 = min(track3,track(j,p+vec3(xPos,0.3,0.0),time_3[j]));
+		}
+
+		if(j<elements4){
+			float xPos = spacing*j-((spacing*float(elements4))/2.0-(spacing/2.0));
+			track4 = min(track4,track(j,p+vec3(xPos,0.6,0.0),time_4[j]));
+		}
+	
+	}
+
+	/*
+	float box1 = track(0,p+vec3(0.5,0.0,0.0),time_1[0]);
+	float box2 = track(1,p+vec3(0.25,0.0,0.0),time_1[1]);
+	float box3 = track(2,p+vec3(-0.25,0.0,0.0),time_1[2]);
+	float box4 = track(3,p+vec3(-0.5,0.0,0.0),time_1[3]);
+	*/
+
+  // ground plane
+	float groundPlane = p.y + 1.0;
+
+
+	//return min( min(box1,min(box2,min(box3,box4))), groundPlane );
+	
+	//return min(box,groundPlane);
+	
+	return min(min(track1,min(track2,min(track3,track4))),groundPlane);
+}
+
+
+float intersect( in vec3 ro, in vec3 rd )
+{
+	const float maxd = 10.0;//10.
+	float h = 1.0;
+    float t = 0.0;
+    for( int i=0; i<50; i++ )//50.
+    {
+        if( h<0.001 || t>maxd ) break;
+	    h = map( ro+rd*t );
+        t += h;
+    }
+
+    if( t>maxd ) t=-1.0;
+	
+    return t;
+}
+
+vec3 calcNormal( in vec3 pos )
+{
+    vec3 eps = vec3(0.002,0.0,0.0);
+
+	return normalize( vec3(
+           map(pos+eps.xyy) - map(pos-eps.xyy),
+           map(pos+eps.yxy) - map(pos-eps.yxy),
+           map(pos+eps.yyx) - map(pos-eps.yyx) ) );
+}
+
+float calcSoftshadow( in vec3 ro, in vec3 rd, float k )
+{
+    float res = 1.0;
+    float t = 0.0;
+	float h = 1.0;
+    for( int i=0; i<20; i++ )
+    {
+        h = map(ro + rd*t);
+        res = min( res, k*h/t );
+		t += clamp( h, 0.01, 1.0 );
+		if( h<0.0001 ) break;
+    }
+    return clamp(res,0.0,1.0);
+}
+
+float calcOcclusion( in vec3 pos, in vec3 nor )
+{
+    float occ = 0.0;
+    float sca = 1.0;
+    for( int i=0; i<5; i++ )
+    {
+        float hr = 0.02 + 0.025*float(i*i);
+        vec3 aopos =  nor * hr + pos;
+        float dd = map( aopos );
+        occ += -(dd-hr)*sca;
+        sca *= 0.95;
+    }
+    return 1.0 - clamp( occ, 0.0, 1.0 );
+}
+
+vec3 lig = normalize(vec3(1.0,0.9,0.7));
+
+
+
+
+//MAIN
+//========================================================================================
+
+void main() {
+
+	//original
+    //vec2 p = (-iResolution.xy + 2.0*fragCoord)/iResolution.y;
+    
+    //stub
+    //vec2 p = jit_in.texcoord.st/u_resolution.xy;
+
+	//coordinates
+	vec2 p = (-u_resolution.xy + 2.0*jit_in.texcoord.st)/(u_resolution.y);	
+	p = vec2(p.x,-p.y);
+	
+	
+	int animated = 0;
+	
+	float t;
+	
+	if(animated == 0){		
+		t = fract(u_time / 04.0);
+	} else {
+		t = 0.0;
+	}
+
+	//vec2 st = jit_in.texcoord.st/u_resolution.xy;
+
+	//50% performance increase if you DON'T USE a struct !!!!!	
+//	vec2	st_1[CNT],		st_2[CNT],		st_3[CNT],		st_4[CNT],		st_5[CNT];
+//	float 	time_1[CNT],	time_2[CNT],	time_3[CNT],	time_4[CNT],	time_5[CNT];
+
+	
+//	float	mask_1,			mask_2,			mask_3,			mask_4,			mask_5 			= 0.0;
+//	vec3	color_1,		color_2,		color_3,		color_4,		color_5			= vec3(0.0);
+	
+/*	HERO	
+	if(mode == 1){
+	
+		time_5[0] = hero_1;
+		time_5[1] = hero_2;
+		time_5[2] = hero_3;
+		time_5[3] = hero_4;
+		time_5[4] = hero_5;
+		time_5[5] = hero_6;
+		time_5[6] = hero_7;
+		time_5[7] = hero_8;
+
+	
+	}
+*/
+	
+	//MAIN TIME LOOP
+	for(int i=0;i < CNT; i++){
+		
+		vec4 item = vec4(0.0);
+		
+		if(mode == 1){
+			item = texture(ADSRdata, vec2(float(i)+0.5,float(0)+0.5));
+		
+			time_1[i] = item.a;		//plane 0
+			time_2[i] = item.x;
+			time_3[i] = item.y;
+			time_4[i] = item.z;
+			
+		
+		} else if (mode == 0) {
+			time_1[i] = t;
+			time_2[i] = t;
+			time_3[i] = t;
+			time_4[i] = t;
+			time_5[i] = t;
+		}
+	}	
+	
+	//RAYMARCHER
+	vec3 ro = vec3(0.0, 0.25, 2.0 );
+	vec3 rd = normalize( vec3(p,-1.0) );
+	
+	vec3 col = vec3(0.0);
+
+	
+
+    float thisPixel = intersect(ro,rd);
+    if( thisPixel>0.0 )
+    {
+        vec3 pos = ro + thisPixel*rd;
+        vec3 nor = calcNormal(pos);
+		float sha = calcSoftshadow( pos + nor*0.01, lig, 32.0 );
+		float occ = calcOcclusion( pos, nor );
+		col =  vec3(0.9,0.6,0.3)*clamp( dot( nor, lig ), 0.0, 1.0 ) * sha;
+		col += vec3(0.5,0.6,0.7)*clamp( nor.y, 0.0, 1.0 )*occ;
+        col += 0.03;
+		col *= exp( -0.2*thisPixel );
+        col *= 1.0 - smoothstep( 5.0, 10.0, thisPixel );
+	}
+
+	col = pow( clamp(col,0.0,1.0), vec3(0.45) );
+	   
+    //fragColor = vec4( col, 1.0 );
+
+	outColor = vec4( col, 1.0 );
+
+}	
+]]>
+		</program>
+	</language>
+</jittershader>

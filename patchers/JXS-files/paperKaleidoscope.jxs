@@ -17,37 +17,37 @@
 	    
 	<param name="layerAngle1" type="float" default="0.0" />
 	<param name="layer1enabled" type="bool" default="1" />
-	<param name="c1" type="vec4" default="1. 0. 0. 1." />
-	<param name="param1_1" type="float" default="0.15" />
-	<param name="param1_2" type="float" default="0.15" />
-	<param name="param1_3" type="float" default="0.0" />
-	<param name="param1_4" type="float" default="0.0" />
-	<param name="param1_5" type="float" default="0.0" />
+	<param name="c1" type="vec4" default="0.2 0.2 0.2 1." />
+	<param name="param1_1" type="float" default="0.45" />
+	<param name="param1_2" type="float" default="0.55" />
+	<param name="param1_3" type="float" default="0.46" />
+	<param name="param1_4" type="float" default="0.35" />
+	<param name="param1_5" type="float" default="0.65" />
 	<param name="param1_6" type="float" default="0.0" />
 
 	<param name="layerAngle2" type="float" default="0.0" />
 	<param name="layer2enabled" type="bool" default="1" />
-	<param name="c2" type="vec4" default="0. 1. 1. 1." />
-	<param name="param2_1" type="float" default="0.15" />
-	<param name="param2_2" type="float" default="0.23" />
-	<param name="param2_3" type="float" default="0.0" />
-	<param name="param2_4" type="float" default="0.0" />
-	<param name="param2_5" type="float" default="0.0" />
+	<param name="c2" type="vec4" default="0.4 0.4 0.4 1." />
+	<param name="param2_1" type="float" default="0.3" />
+	<param name="param2_2" type="float" default="0.5" />
+	<param name="param2_3" type="float" default="0.5" />
+	<param name="param2_4" type="float" default="0.6" />
+	<param name="param2_5" type="float" default="0.75" />
 	<param name="param2_6" type="float" default="0.0" />
 	
 	<param name="layerAngle3" type="float" default="0.0" />
 	<param name="layer3enabled" type="bool" default="1" />
-	<param name="c3" type="vec4" default="0. 1. 0. 1." />
-	<param name="param3_1" type="float" default="0.15" />
-	<param name="param3_2" type="float" default="0.3" />
-	<param name="param3_3" type="float" default="0.0" />
-	<param name="param3_4" type="float" default="0.0" />
-	<param name="param3_5" type="float" default="0.0" />
+	<param name="c3" type="vec4" default="0.6 0.6 0.6 1." />
+	<param name="param3_1" type="float" default="0.35" />
+	<param name="param3_2" type="float" default="0.45" />
+	<param name="param3_3" type="float" default="0.35" />
+	<param name="param3_4" type="float" default="0.25" />
+	<param name="param3_5" type="float" default="0.75" />
 	<param name="param3_6" type="float" default="0.0" />
 	
 	<param name="layerAngle4" type="float" default="0.0" />
 	<param name="layer4enabled" type="bool" default="1" />
-	<param name="c4" type="vec4" default="0. 0. 1. 1." />
+	<param name="c4" type="vec4" default="0.8 0.8 0.8 1." />
 	<param name="param4_1" type="float" default="0.15" />
 	<param name="param4_2" type="float" default="0.4" />
 	<param name="param4_3" type="float" default="0.0" />
@@ -169,6 +169,33 @@ void main() {
 ]]>
 		</program>
 		<program name="fp" type="fragment">
+<!-- MAINTAIN THIS OFFSET SO YOU CAN DEBUG BY LINE NUMBER + 200 -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- MAINTAIN THIS OFFSET SO YOU CAN DEBUG BY LINE NUMBER + 200 -->
 <![CDATA[
 #version 330 core
 
@@ -267,69 +294,29 @@ uniform float hero_8;				//0.0
 //FUNCTIONS
 //========================================================================================
 
+//ORIGINAL SHADER
+//https://www.shadertoy.com/view/ls3GRr
+
+//https://soundcloud.com/lg3bass
+
+
 float linearstep(float begin, float end, float t) {
     return clamp((t - begin) / (end - begin), 0.0, 1.0);
 }
 
-float stroke(float x, float s, float w){
-	float d = step(s, x+w * 0.5) - step(s, x - w * 0.5);
-	return clamp(d,0.0,1.0);
-}
-	
-float fill(float x, float size){
-	return 1.0 - step(size, x);
+mat2 rotate2d(in float radians){
+    float c = cos(radians);
+    float s = sin(radians);
+    return mat2(c, -s, s, c);
 }
 
-float flip(float v, float pct){
-	return mix(v,1.0-v,pct);
+vec2 rotate(in vec2 st, in float radians, in vec2 center) {
+  return rotate2d(radians) * (st - center) + center;
 }
-
-float circleSDF(vec2 st){
-	return length(st-0.5)*2.0;
-}
-
-float raysSDF(vec2 st, int N){
-	st -= 0.5;
-	return fract(atan(st.y,st.x)/TAU*float(N));
-}
-
-float rectSDF(vec2 st, vec2 s) {
-    st = st*2.-1.;
-    return max( abs(st.x/s.x),
-                abs(st.y/s.y) );
-}
-
-float hexSDF(vec2 st) {
-    st = abs(st*2.-1.);
-    return max(abs(st.y), st.x * 0.866025 + st.y * 0.5);
-}
-
-float polySDF(vec2 st, int V) {
-    st = st*2.-1.;
-    float a = atan(st.x,st.y)+PI;
-    float r = length(st);
-    float v = TAU/float(V);
-    return cos(floor(.5+a/v)*v-a)*r;
-}
-
 
 void rotateShape(inout vec2 _st, float a){
-	_st = mat2( cos(a) , -sin(a), sin(a), cos(a) ) * (_st - 0.5);
-	_st += 0.5;
-}
-
-vec2 rotate(vec2 st, float a){
-	st = mat2( cos(a) , -sin(a), sin(a), cos(a) ) * (st - 0.5);
-	return st + 0.5;
-}
-
-mat2 scale(vec2 _scale){
-    return mat2(_scale.x,0.0,0.0,_scale.y);
-}
-
-float sinc( float x, float k){
-    float a = PI*(k*x-1.0);
-    return sin(a)/a;
+	_st = mat2( cos(a) , -sin(a), sin(a), cos(a) ) * (_st);
+	//_st += 0.5;
 }
 
 //source: https://www.iquilezles.org/www/articles/functions/functions.htm
@@ -341,48 +328,188 @@ float pcurve( float x, float a, float b , float amp)
     return curve * amp;
 }
 
-
-//source: https://www.iquilezles.org/www/articles/functions/functions.htm
-float expImpulse( float x, float k ){
-	float h = k*x;
-    return h*exp(0.0005-h);
+float map(float value, float min1, float max1, float min2, float max2) {
+  return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
 }
 
-float gain(float x, float k) 
+float stroke(float x, float s, float w){
+	float d = step(s, x+w * 0.5) - step(s, x - w * 0.5);
+	return clamp(d,0.0,1.0);
+}
+
+float poly(vec2 p, float aa, float r, float t, int instance, float range, int _poly_points, float _copy_scale)
 {
-    float a = 0.5*pow(2.0*((x<0.5)?x:1.0-x), k);
-    return (x<0.5)?a:1.0-a;
+    //PUBLISH
+    //poly points
+    //if you change this then adjust the layer params.
+    int poly_points = _poly_points;//4-5
+    
+    //PUBLISH
+    //scale of the copies.(+smaller,-larger)//
+    float copy_scale = _copy_scale;//0.05
+    
+    float cs2 = -1.0;
+    float cs1 = 0.0;
+    
+    
+    //this adjusts the over tightness and release state cutoff. 
+    //higher number = quicker cutoff.
+    //value of 7. keeps it all together tight. 
+    //value of 1.5 the 7 or 8th instance releases fully.
+    //range 0.5 - 2.0
+    //default 1.0
+    float multiplier = 1.0;//1.0
+    
+    //time override
+    //t = 0.588;
+  
+    if(t <= 0.0){  
+	    cs2 = -10.0;
+	    r = 0;
+	    copy_scale = 0;
+    }
+
+  
+     //ATTACK
+    if(t > 0.0 && t < 0.25){
+      float modT = linearstep(0.0,0.25,t);	
+      
+      //fly out
+      cs1 = (1.-pow(modT,3.0))*((r*2.5)+multiplier*float(instance));
+      cs2 = 0.01*(multiplier*float(instance));
+      //r *= pow(modT,3.0);
+      copy_scale *= pow(modT,3.0);
+
+
+    }
+
+    //DECAY
+    if(t >= 0.25 && t < 0.5){
+      float modT = linearstep(0.25,0.50,t);
+      float pulse = pcurve( modT, 0.8, 15.0 , 0.2);
+      
+      //pop
+      cs2 = pulse*(0.5+multiplier*float(instance));
+
+
+    }
+
+    //SUSTAIN
+    if(t >= 0.5 && t < 0.75){
+      float modT = linearstep(0.5,0.75,t);		
+      
+      //do nothing
+      cs2 = 0.01*(multiplier*float(instance));
+      
+
+    }
+
+    //RELEASE
+    if(t >= 0.75 && t < 1.0){
+      float modT = linearstep(0.75,1.0,t);
+           
+      //grow(or shrink)
+      cs2 = map((1.-pow(modT,0.3)),0.0,0.999,-(r*2.5)-(multiplier*float(instance)),0.0);
+      r *= pow(1.-modT,0.3);
+      copy_scale *= pow(1.-modT,0.3);
+    }
+   
+    //max off
+    if(t >= 1.0){  
+      cs1 = -10.0;
+      cs2 = -10.;
+      r = 0.;
+      copy_scale = 0;
+    }
+
+    vec2 coolShape = vec2(cs1, cs2);//0501 - testing
+    //coolShape = vec2(0.0, 0.5);
+
+    //makes these undulating patterns
+    float shardRange = 2.48854;//1.17
+    shardRange = range;
+    float shardStyle = map(t, 0., 1.0, shardRange+0.2, shardRange);
+    //shardStyle = shardRange;//0501 - testing
+    
+    //init distance
+    float d=0.0;
+
+    float thisRadius = r-(copy_scale*float(instance));
+  
+    //PARAM
+    for(int i=0;i<poly_points;++i)//0501 - testing
+    {
+        float a=float(i)/aa*acos(-1.0)*shardStyle;
+        float b=max(0.0,dot(p+coolShape,vec2(cos(a),sin(a)))-thisRadius);
+      
+        d+=b*b;//could make a cool motion blur if I move this into the attack or release conditional
+    }
+    return sqrt(d);
 }
 
-float box(in vec2 _st, in vec2 _size){
-    _size = vec2(0.5) - _size*0.5;
-    vec2 uv = smoothstep(_size,
-                        _size+vec2(0.001),
-                        _st);
-    uv *= smoothstep(_size,
-                    _size+vec2(0.001),
-                    vec2(1.0)-_st);
-    return uv.x*uv.y;
+float softPoly(vec2 p, vec2 offset, float r, float s, float t, int i, float range, float pOutline, float pAngle, int pPoints, float pScale)
+{
+    
+    //PUBLISH param_outline
+    //PUBLISH param_angle - move up to layer1()
+    float param_outline = pOutline;//outline of the layer, default 4.0
+    float param_angle = pAngle;//sukkaa //3.0
+    
+    int param_poly_points = pPoints;//4
+    float param_copy_scale = pScale;//0.05
+  
+    //mirror code   
+    p=abs(p);
+    
+    if(p.x>p.y){
+      p=p.yx;//i know this is swizzling? but why?
+    }
+  
+    p*=mat2(cos(param_angle),sin(param_angle),-sin(param_angle),cos(param_angle));
+    p-=offset;
+    float d=poly(p,param_angle,r-s,t,i,range,param_poly_points,param_copy_scale);
+    
+    return clamp(smoothstep(0.0,s*param_outline,d),0.0,1.0);
+  
 }
 
-float map(float n, float i1, float i2, float o1, float o2){
-	return o1 + (n-i1)*(o2-i1)/(i2-i1);
-	
+float layer1(in vec2 p, in vec2 offset, in float t, in int i, inout float s1, inout float s2, inout float d, in float range, float v, float pOutline, float pAngle, int pPoints, float pScale){
+
+  offset *= float(i);  
+  
+  //PUBLISH param_volume
+  float param_volume = v;
+  float r=param_volume;//0.15
+  
+  float param_outline = pOutline;//outline of the layer, default 4.0
+  float param_angle = pAngle;//sukkaa //3.0
+
+  int param_poly_points = pPoints;//4
+  float param_copy_scale = pScale;//0.05
+  
+  
+  
+  float a=1.0-softPoly(p,offset,r,0.003,t,i,range,param_outline,param_angle,param_poly_points,param_copy_scale);//0.003
+  
+  vec2 shadowPos = vec2(-0.010, -0.050);
+  
+  vec2 pos = p+2.0*shadowPos*(1.0+float(i)-d);
+  float dist = 0.01+0.003*(1.0+float(i)-d);
+  float as0=softPoly(pos,offset,r,dist,t,i,range,param_outline,param_angle,param_poly_points,param_copy_scale);
+  
+  dist = 0.01+0.01*(1.0+float(i)-d);
+  float as1=softPoly(p,offset,r,dist,t,i,range,param_outline,param_angle,param_poly_points,param_copy_scale);
+
+  s1*=as0;
+  s2*=as1;
+  s1=mix(s1,1.5,a);
+  s2=mix(s2,1.0,a);
+
+
+  return a;
+
 }
 
-vec2 scaleSDF(vec2 st, vec2 s) {
-    return (st-.5)*s+.5;
-}
-
-void translateShape(inout vec2 _st, vec2 pos){
-	_st += pos;
-}
-
-
-float triSDF(vec2 st) {
-    st = (st*2.-1.)*2.;
-    return max(abs(st.x) * 0.866025 + st.y * 0.5, -st.y * 0.5);
-}
 
 
 float plot(vec2 st, float pct){
@@ -393,73 +520,8 @@ float plot(vec2 st, float pct){
 
 //TRACKS
 //========================================================================================
-
-float track1(inout vec2 _st, float time, float instance){
-
-	//modifiable params
-	float thisAngle = 360.0/float(elements1);	
-	
-	float thisSize = 1.0 * param1_1;
-	float thisOffset = 1.0 * param1_2;
-	float thisLocalAngle = 180.0 * param1_3;
-
-	//SETUP TRANS and ROTATION
-	float shape  = 0;
-	rotateShape(_st,radians(thisAngle*instance));
-	translateShape(_st,vec2(0.0,thisOffset));
-	rotateShape(_st,radians(thisLocalAngle));
-	
-	
-	//ATTACK
-	if(time >= 0.0 && time < 0.25){
-	
-		float modT = linearstep(0.0,0.25,time);		
-		float size = pow(modT,4.0)*thisSize;
-		
-		shape = fill(circleSDF(_st),size);
-
-	}
-
-
-	//DECAY
-	if(time >= 0.25 && time < 0.5){
-
-		float modT = linearstep(0.25,0.50,time);
-		float size = thisSize;	
-		float pulse = pcurve( modT, 0.8, 15.0 , 0.1);
-
-		shape = stroke(circleSDF(_st),size+pulse,0.02);
-		
-	}
-
-	//SUSTAIN
-	if(time >= 0.5 && time < 0.75){
-	
-		float modT = linearstep(0.5,0.75,time);		
-		float size = thisSize;
-
-		shape = stroke(circleSDF(_st),size,0.02);
-		
-	}
-
-	//RELEASE
-	if(time >= 0.75 && time <= 1.0){
-
-		float modT = linearstep(0.75,1.0,time);
-		float size = pow(1.0-modT,4.0)*thisSize;
-
-		shape = stroke(circleSDF(_st),size,0.02);
-
-	}	
-	
-	return shape;
-
-}
-
-
-
-
-float track2(inout vec2 _st, float time, float instance){
+/*
+float trackSTUB(inout vec2 _st, float time, float instance){
 
 	//modifiable params
 	float thisAngle = 360.0/float(elements2);	
@@ -479,9 +541,6 @@ float track2(inout vec2 _st, float time, float instance){
 	if(time >= 0.0 && time < 0.25){
 	
 		float modT = linearstep(0.0,0.25,time);		
-		float size = pow(modT,4.0)*thisSize;
-		
-		shape = fill(hexSDF(_st),size);
 
 	}
 
@@ -490,10 +549,6 @@ float track2(inout vec2 _st, float time, float instance){
 	if(time >= 0.25 && time < 0.5){
 
 		float modT = linearstep(0.25,0.50,time);
-		float size = thisSize;	
-		float pulse = pcurve( modT, 0.8, 15.0 , 0.1);
-
-		shape = stroke(hexSDF(_st),size+pulse,0.02);
 		
 	}
 
@@ -501,9 +556,6 @@ float track2(inout vec2 _st, float time, float instance){
 	if(time >= 0.5 && time < 0.75){
 	
 		float modT = linearstep(0.5,0.75,time);		
-		float size = thisSize;
-
-		shape = stroke(hexSDF(_st),size,0.02);
 		
 	}
 
@@ -511,145 +563,19 @@ float track2(inout vec2 _st, float time, float instance){
 	if(time >= 0.75 && time <= 1.0){
 
 		float modT = linearstep(0.75,1.0,time);
-		float size = pow(1.0-modT,4.0)*thisSize;
 
-		shape = stroke(hexSDF(_st),size,0.02);
 
 	}	
 	
 	return shape;
 
 }
+*/
 
 
-float track3(inout vec2 _st, float time, float instance){
-	
-	//modifiable params
-	float thisAngle = 360.0/float(elements3);	
-	
-	float thisSize = 1.0 * param3_1;
-	float thisOffset = 1.0 * param3_2;
-	float thisLocalAngle = 180.0 * param3_3;
-
-	//SETUP TRANS and ROTATION
-	float shape  = 0;
-	rotateShape(_st,radians(thisAngle*instance));
-	translateShape(_st,vec2(0.0,thisOffset));
-	rotateShape(_st,radians(thisLocalAngle));
-	
-	
-	//ATTACK
-	if(time >= 0.0 && time < 0.25){
-	
-		float modT = linearstep(0.0,0.25,time);		
-		float size = pow(modT,4.0)*thisSize;
-		
-		shape = fill(polySDF(_st,3),size);
-
-	}
 
 
-	//DECAY
-	if(time >= 0.25 && time < 0.5){
-
-		float modT = linearstep(0.25,0.50,time);
-		float size = thisSize;	
-		float pulse = pcurve( modT, 0.8, 15.0 , 0.1);
-
-		shape = stroke(polySDF(_st,3),size+pulse,0.02);
-		
-	}
-
-	//SUSTAIN
-	if(time >= 0.5 && time < 0.75){
-	
-		float modT = linearstep(0.5,0.75,time);		
-		float size = thisSize;
-
-		shape = stroke(polySDF(_st,3),size,0.02);
-		
-	}
-
-	//RELEASE
-	if(time >= 0.75 && time <= 1.0){
-
-		float modT = linearstep(0.75,1.0,time);
-		float size = pow(1.0-modT,4.0)*thisSize;
-
-		shape = stroke(polySDF(_st,3),size,0.02);
-
-	}	
-	
-	return shape;
-	
-}
-
-
-float track4(inout vec2 _st, float time, float instance){
-
-	//modifiable params
-	float thisAngle = 360.0/float(elements4);	
-	
-	float thisSize = 1.0 * param4_1;
-	float thisOffset = 1.0 * param4_2;
-	float thisLocalAngle = 180.0 * param4_3;
-
-	//SETUP TRANS and ROTATION
-	float shape  = 0;
-	rotateShape(_st,radians(thisAngle*instance));
-	translateShape(_st,vec2(0.0,thisOffset));
-	rotateShape(_st,radians(thisLocalAngle));
-	
-	float baseShape = rectSDF(_st,vec2(1.0,2.0));
-	
-	
-	//ATTACK
-	if(time >= 0.0 && time < 0.25){
-	
-		float modT = linearstep(0.0,0.25,time);		
-		float size = pow(modT,4.0)*thisSize;
-		
-		shape = fill(baseShape,size);
-
-	}
-
-
-	//DECAY
-	if(time >= 0.25 && time < 0.5){
-
-		float modT = linearstep(0.25,0.50,time);
-		float size = thisSize;	
-		float pulse = pcurve( modT, 0.8, 15.0 , 0.1);
-
-		shape = stroke(baseShape,size+pulse,0.02);
-		
-	}
-
-	//SUSTAIN
-	if(time >= 0.5 && time < 0.75){
-	
-		float modT = linearstep(0.5,0.75,time);		
-		float size = thisSize;
-
-		shape = stroke(baseShape,size,0.02);
-		
-	}
-
-	//RELEASE
-	if(time >= 0.75 && time <= 1.0){
-
-		float modT = linearstep(0.75,1.0,time);
-		float size = pow(1.0-modT,4.0)*thisSize;
-
-		shape = stroke(baseShape,size,0.02);
-
-	}	
-	
-	return shape;
-
-}
-
-
+/*
 float heroTrack5(inout vec2 _st, float time, float instance){
 
 	//modifiable params
@@ -713,7 +639,7 @@ float heroTrack5(inout vec2 _st, float time, float instance){
 	return shape;
 
 }
-
+*/
 
 //MAIN
 //========================================================================================
@@ -722,24 +648,36 @@ void main() {
 
 	int animated = 0;
 	
-	float t;
+	float autoTime;
 	
 	if(animated == 0){		
-		t = fract(u_time / 04.0);
+		autoTime = fract(u_time / 04.0);
 	} else {
-		t = 0.0;
+		autoTime = 0.0;
 	}
+	
+	//coordinate space
+	vec2 uv = jit_in.texcoord.st/u_resolution.xy;
+	
+    vec2 t=(uv-vec2(0.5))*20.;
+    t.x*=u_resolution.x/u_resolution.y;
 
-	vec2 st = jit_in.texcoord.st/u_resolution.xy;
+    vec2 st = rotate(t.xy+vec2(0.0), radians(0.0), vec2(0.0));	
+	
 
 	//50% performance increase if you DON'T USE a struct !!!!!	
-	vec2	st_1[CNT],		st_2[CNT],		st_3[CNT],		st_4[CNT],		st_5[CNT];
+	//vec2	st_1[CNT],		st_2[CNT],		st_3[CNT],		st_4[CNT],		st_5[CNT];
 	float 	time_1[CNT],	time_2[CNT],	time_3[CNT],	time_4[CNT],	time_5[CNT];
 
-	
+	/*
 	float	mask_1,			mask_2,			mask_3,			mask_4,			mask_5 			= 0.0;
 	vec3	color_1,		color_2,		color_3,		color_4,		color_5			= vec3(0.0);
 	
+	float	dist1,			dist2,			dist3,			dist4,			dist5			= 0.0;
+	*/
+	
+	
+	//layer1enabled
 	
 	if(mode == 1){
 	
@@ -754,11 +692,42 @@ void main() {
 
 	
 	}
-	
-	
-		//MAIN FOR LOOP
-	for(int i=0;i < CNT; i++){
-		
+
+    //output pixels  
+    vec3 col; 
+
+    //Basic, solid color
+    col=vec3(0.474, 0.546, 0.670);
+    
+    //Gradient
+    col+=pow(1.0-smoothstep(0.,6.01898,-t.y+0.88667),2.80375)*vec3(0.606, 0.511, 0.990)*0.38307;
+    
+    float shape1, shape2, shape3;
+    float shape1mask, shape2mask, shape3mask;
+  
+    vec2 st1 = rotate(st+vec2(0.0), radians(layerAngle1), vec2(0.0));//0501 - testing
+    vec2 st2 = rotate(st+vec2(0.0), radians(layerAngle2), vec2(0.0));
+    vec2 st3 = rotate(st+vec2(0.0), radians(layerAngle3), vec2(0.0));
+  
+    //PUBLISH - 3 params for the vec2[1] component
+    vec2 offset1 = vec2(param1_1*2.0-1.0, param1_2*1.5-1.5);
+    vec2 offset2 = vec2(param2_1*2.0-1.0, param2_2*1.5-1.5);
+    vec2 offset3 = vec2(param3_1*2.0-1.0, param3_2*1.5-1.5);
+  
+    //create an array of timelines
+    //float time_1[CNT];
+    //setTimeArray(time_1);
+  
+    float shad0=1.,shad1=1.,shad2=1.,shad3=1.,shad4=1.,shad5=1.;
+    
+    float depth=0.;
+
+    //OVERIDES
+    float time_All = -0.05774;
+  
+    for(int i=0;i<8;++i)
+    {
+
 		vec4 item = vec4(0.0);
 		
 		if(mode == 1){
@@ -771,108 +740,123 @@ void main() {
 			
 		
 		} else if (mode == 0) {
-			time_1[i] = t;
-			time_2[i] = t;
-			time_3[i] = t;
-			time_4[i] = t;
-			time_5[i] = t;
+			time_1[i] = autoTime;
+			time_2[i] = autoTime;
+			time_3[i] = autoTime;
+			time_4[i] = autoTime;
+			time_5[i] = autoTime;
 		}
 	
-		
-		if(layer1enabled) {		
-			if(i < elements1){
-			//TRACK1
-		
-				st_1[i] = st;
-				mask_1 += track1(st_1[i], time_1[i], float(i));
-				color_1 = vec3(mask_1*c1.r,mask_1*c1.g,mask_1*c1.b);
-		
-			}		
-		}
-		
-		
-		if(layer2enabled) {
-			if(i < elements2){
-			//TRACK2
-		
-				st_2[i] = st;
-				mask_2 += track2(st_2[i], time_2[i], float(i));
-				color_2 = vec3(mask_2*c2.r,mask_2*c2.g,mask_2*c2.b);
-		
-			}
-		}
-		
-		
-		if(layer3enabled) {
-			if(i < elements3){
-		
-				st_3[i] = st;
-				mask_3 += track3(st_3[i], time_3[i], float(i));
-				color_3 = vec3(mask_3*c3.r,mask_3*c3.g,mask_3*c3.b);
-
-			}
-		}
-
-		if(layer4enabled) {
-			if(i < elements4){
-		
-				st_4[i] = st;
-				mask_4 += track4(st_4[i], time_4[i], float(i));
-				color_4 = vec3(mask_4*c4.r,mask_4*c4.g,mask_4*c4.b);
-
-			}
-		}
-		
-		//ADD HERO
-		if(layer5enabled) {
-			if(i < elements5){
-	
-				st_5[i] = st;
-				mask_5 += heroTrack5(st_5[i], time_5[i], float(i));
-				color_5 = vec3(mask_5*c5.r,mask_5*c5.g,mask_5*c5.b);
-
-			}
-		}		
-		
-
-	} // END MAIN FOR
 
 
+/*
+layer1(
+	in vec2 p,			  //position
+	in vec2 offset, 	//position modifier
+	in float t, 		  //time
+	in int i, 			  //instance
+	inout float s1, 	//shadow1
+	inout float s2, 	//shadow2
+	inout float d, 		//depth
+	in float range, 	//sustain(modulation) range
+	float v, 			    //volume
+	float pOutline, 	//line width(outline)
+	float pAngle, 		//sukka effect
+	int pPoints, 		  //points in the poly shapes
+	float pScale		  //scale modifier for instances in layer
+)
+*/
+    if(layer1enabled){
+    	       
+        shape1 = layer1(st1, offset1, time_1[i], i, shad0, shad1, depth,param1_3*4.0,param1_4*1.5,param1_5*6.0,3.0,4,param1_6*0.4-0.2);
+        shape1mask += clamp(shape1,0.,1.);
+	}
+        
+    if(layer2enabled){   
+        shape2 = layer1(st2, offset2, time_2[i], i, shad2, shad3, depth,param2_3*4.0,param2_4*1.5,param2_5*6.0,3.0,4,param2_6*0.4-0.2);
+        shape2mask += clamp(shape2,0.,1.);
+    }
+        
+    if(layer3enabled){   
+        shape3 = layer1(st3, offset3, time_3[i], i, shad4, shad5, depth,param3_3*4.0,param3_4*1.5,param3_5*6.0,3.0,5,param3_6*0.4-0.2);
+        shape3mask += clamp(shape3,0.,1.);  
+    }   
+      
+        vec3 c=vec3(1.0);
+              
+        //accumulate the color       
+        col=max(
+              max(
+                mix(col,c,shape1),mix(col,c,shape2)
+              ),
+              mix(col,c,shape3)
+            );
 
+        
+        depth=max(
+                max(
+                  mix(depth,float(i),shape1),mix(depth,float(i),shape2)
+                ), 
+                mix(depth,float(i),shape3)
+              );
+        
+    }
+    
+    //LAYER 1
+    //shadow
+    vec3 lyr1Comp1 = 1.0 * mix(0.,1.,shad0) * vec3(1.0);  
+  
+    //foreground
+    vec3 lyr1Comp2 = 1.0 * mix(0.,1.0,shad1) * vec3(1.0);
 
-
-
-		
-	//vec3 mixLayerA = mix(color_1,color_2,mask_2-0.1);
-	vec3 mixLayerA = max(color_1,color_2);
-	vec3 mixLayerB = mix(color_3,mixLayerA,mask_3-0.6);
-	
-	vec3 mixLayerC = max(mixLayerA,mixLayerB);
-	
-	vec3 mixLayerD = max(color_4,mixLayerC);
-	
-	
-	vec3 finalColor = max(color_5, mixLayerD);
-
-
-
-
-
-
+    //LAYER 2
+    //shadow
+    vec3 lyr2Comp1 =  1.0 * mix(0.,1.,shad2) * vec3(1.0);
+  
+    //foreground
+    vec3 lyr2Comp2 = 1.0 * mix(0.,1.,shad3) * vec3(1.0);
+  
+    //LAYER 3
+    //shadow
+    vec3 lyr3Comp1 = 1.0 * mix(0.,1.,shad4) * vec3(1.0);  
+  
+    //foreground
+    vec3 lyr3Comp2 = 1.0 * mix(0.,1.,shad5) * vec3(1.0);  
+  
+    vec3 shadowPass = lyr1Comp1*lyr2Comp1+vec3(shape2mask);
+    shadowPass = min(shadowPass+vec3(shape3mask*0.81493), lyr3Comp1);
+    
+    //PUBLISH blend float and vec3
+    vec3 lyrColor1 = vec3(shape1mask*-0.42664)*c1.rgb;
+    vec3 lyrColor2 = vec3(shape2mask*-0.15904)*c2.rgb;
+    vec3 lyrColor3 = vec3(shape3mask*-0.06640)*c3.rgb;
+  
+    vec3 forgroundPass = min(min((lyr1Comp2+lyrColor1),lyr2Comp2+lyrColor2),lyr3Comp2+lyrColor3);
+    
+    //final output
+    vec3 finalComp;
+  
+    //IDEA 1 (DARK)
+    //finalComp = min(0.5 *vec3(1.0) * col * mix(forgroundPass, vec3(0.9), shadowPass),shadowPass);
+    
+    //IDEA 2 (BRIGHT)
+    finalComp = col*min(forgroundPass,shadowPass);
 	
 	
 
 
 //PLOT TESTING 
-float testCurve = pow(st.x,param1_6);
-//testCurve = st.x*0.3;
+float testCurve = 1.0-pcurve(uv.x, 1.0, 6.0, 0.3);
+testCurve = linearstep(0.0,1.0,uv.x);
+testCurve = pow(uv.x,2.0);
 
-float pct = plot(st,testCurve);
-vec3 test = (1.0-pct)*finalColor+pct*vec3(1.0);
+float pct = plot(uv,testCurve);
+vec3 test = pct*vec3(1.0);
 
 //uncomment "test" line OVERIDE THE outColor
-outColor = vec4(finalColor,1.0);
+outColor = vec4(finalComp,1.0);
 //outColor = vec4(test,1.0);
+
 
 	
 
