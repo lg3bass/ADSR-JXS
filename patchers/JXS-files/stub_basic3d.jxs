@@ -343,17 +343,12 @@ float track(int instance, in vec3 pos, in float time){
 		
 		}
 		
-		shape = sdRoundBox(pos+pMod,sMod,0.05);
+		shape = sdRoundBox(pos+pMod+vec3(0.0,0.0,time*3.0),sMod,0.1);
 	
 	} else {
 		shape = 1.0;	
 	}
 		
-
-		
-	
-
-
 
 	return shape;
 }
@@ -385,56 +380,53 @@ float map( in vec3 p )
 
 float map( in vec3 p) {
 	
-	float box = 1.0;
+	float zPos = param0_1;
 	
-	float track1 = 1.0;
-	float track2 = 1.0;
-	float track3 = 1.0;
-	float track4 = 1.0;
+	float box = 1.0;
 	
 	for(int j=0;j<CNT;j++){
 		
-		float spacing = 0.3;
+		float spacing = 0.9;
 		
-		
-		if(j<elements1){
-			float xPos = spacing*j-((spacing*float(elements1))/2.0-(spacing/2.0));
-			track1 = min(track1,track(j,p+vec3(xPos,-0.3,0.0),time_1[j]));
+		if(layer1enabled){
+			if(j<elements1){
+				float xPos = spacing*j-((spacing*float(elements1))/2.0-(spacing/2.0));
+				//track1 = min(track1,track(j,p+vec3(xPos,-0.3,0.0),time_1[j]));
+				box = min(box,track(j,p+vec3(xPos,-1.0,zPos),time_1[j]));
+			}
 		}
 		
-		if(j<elements2){
-			float xPos = spacing*j-((spacing*float(elements2))/2.0-(spacing/2.0));
-			track2 = min(track2,track(j,p+vec3(xPos,0.0,0.0),time_2[j]));
+		if(layer2enabled){
+			if(j<elements2){
+				float xPos = spacing*j-((spacing*float(elements2))/2.0-(spacing/2.0));
+				//track2 = min(track2,track(j,p+vec3(xPos,0.0,0.0),time_2[j]));
+				box = min(box,track(j,p+vec3(xPos,-0.5,zPos),time_2[j]));
+			}
 		}
 		
-		if(j<elements3){
-			float xPos = spacing*j-((spacing*float(elements3))/2.0-(spacing/2.0));
-			track3 = min(track3,track(j,p+vec3(xPos,0.3,0.0),time_3[j]));
+		if(layer3enabled){
+			if(j<elements3){
+				float xPos = spacing*j-((spacing*float(elements3))/2.0-(spacing/2.0));
+				//track3 = min(track3,track(j,p+vec3(xPos,0.3,0.0),time_3[j]));
+				box = min(box,track(j,p+vec3(xPos,-0.0,zPos),time_3[j]));
+			}
 		}
-
-		if(j<elements4){
-			float xPos = spacing*j-((spacing*float(elements4))/2.0-(spacing/2.0));
-			track4 = min(track4,track(j,p+vec3(xPos,0.6,0.0),time_4[j]));
+		
+		if(layer4enabled){
+			if(j<elements4){
+				float xPos = spacing*j-((spacing*float(elements4))/2.0-(spacing/2.0));
+				//track4 = min(track4,track(j,p+vec3(xPos,0.6,0.0),time_4[j]));
+				box = min(box,track(j,p+vec3(xPos,0.5,zPos),time_4[j]));
+			}
 		}
 	
 	}
 
-	/*
-	float box1 = track(0,p+vec3(0.5,0.0,0.0),time_1[0]);
-	float box2 = track(1,p+vec3(0.25,0.0,0.0),time_1[1]);
-	float box3 = track(2,p+vec3(-0.25,0.0,0.0),time_1[2]);
-	float box4 = track(3,p+vec3(-0.5,0.0,0.0),time_1[3]);
-	*/
-
-  // ground plane
+  	// ground plane
 	float groundPlane = p.y + 1.0;
-
-
-	//return min( min(box1,min(box2,min(box3,box4))), groundPlane );
 	
-	//return min(box,groundPlane);
+	return min(box,groundPlane);
 	
-	return min(min(track1,min(track2,min(track3,track4))),groundPlane);
 }
 
 
@@ -445,7 +437,7 @@ float intersect( in vec3 ro, in vec3 rd )
     float t = 0.0;
     for( int i=0; i<50; i++ )//50.
     {
-        if( h<0.001 || t>maxd ) break;
+        if( h<0.001 || t>maxd ) break;//0.001
 	    h = map( ro+rd*t );
         t += h;
     }

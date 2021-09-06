@@ -12,6 +12,7 @@ This is a M4L device that renders and records a native Ableton .jxs shader file.
 	20201231 0.063 - bug fixes
 	20210316 0.064 - added hero channel. updated stub.jxs
 	20210610 0.065 - general params
+	20210612 0.066,0.067 	- Not sure???
 	
 	
 ## Issue Log
